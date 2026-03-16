@@ -1,109 +1,109 @@
+import org.w3c.dom.ls.LSOutput;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StreamTokenizer;
 import java.util.*;
 
 public class Solution {
-
     public static void main(String[] args) throws IOException {
-        class Pair {
-            int value;
-            int index;
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        String line = bufferedReader.readLine();
+        StringTokenizer stringTokenizer = new StringTokenizer(line);
 
-            public Pair(int value, int index) {
-                this.value = value;
-                this.index = index;
-            }
+        int n = Integer.parseInt(stringTokenizer.nextToken());
+        int root = Integer.parseInt(stringTokenizer.nextToken());
 
-            @Override
-            public String toString() {
-                return "Pair{" +
-                        "value=" + value +
-                        ", index=" + index +
-                        '}';
-            }
-        }
-
-        StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));
-        in.nextToken();
-
-        int n = (int) in.nval;
-
-        List<Integer> nums = new ArrayList<>();
-        long[] prefixSum = new long[n + 1];
-        int[] leftIndexes = new int[n];
-        int[] rightIndexes = new int[n];
-
-        prefixSum[0] = 0;
-
-        Deque<Pair> stack = new ArrayDeque<>();
+        Node[] nodes = new  Node[n];
 
         for (int i = 0; i < n; i++) {
-            in.nextToken();
-            int num = (int) in.nval;
-
-            while (!stack.isEmpty() && stack.peek().value >= num) {
-                stack.pop();
-            }
-
-            if (stack.isEmpty()) {
-                leftIndexes[i] = Integer.MIN_VALUE;
-            } else {
-                leftIndexes[i] = stack.peek().index;
-            }
-
-            stack.push(new Pair(num, i));
-
-            nums.add(num);
-            prefixSum[i + 1] = prefixSum[i] + num;
+            nodes[i] = new Node(i);
         }
-
-        stack.clear();
-
-        for (int i = n - 1; i >= 0; i--) {
-            int num = nums.get(i);
-
-            while (!stack.isEmpty() && stack.peek().value >= num) {
-                stack.pop();
-            }
-
-            if (stack.isEmpty()) {
-                rightIndexes[i] = Integer.MAX_VALUE;
-            } else {
-                rightIndexes[i] = stack.peek().index;
-            }
-
-            stack.push(new Pair(num, i));
-        }
-
-//        System.out.println(Arrays.toString(leftIndexes));
-//        System.out.println();
-//        System.out.println(Arrays.toString(rightIndexes));
-//        System.out.println();
-//        System.out.println(Arrays.toString(prefixSum));
-//        System.out.println();
-
-        long result = Long.MIN_VALUE;
 
         for (int i = 0; i < n; i++) {
-            int leftIndex = leftIndexes[i] == Integer.MIN_VALUE ? 0 : leftIndexes[i] + 1;
+            line = bufferedReader.readLine();
+            stringTokenizer = new StringTokenizer(line);
 
-            int rightIndex = rightIndexes[i] == Integer.MAX_VALUE ? n : rightIndexes[i];
+            int leftV = Integer.parseInt(stringTokenizer.nextToken());
+            int rightV = Integer.parseInt(stringTokenizer.nextToken());
 
-            long sum = (long) nums.get(i) * (prefixSum[rightIndex] - prefixSum[leftIndex]);
+            Node node = nodes[i];
 
-            if (result < sum) {
-//                System.out.println(leftIndex);
-//                System.out.println(rightIndex);
+            if (leftV == -1) {
+                node.left = null;
+            } else {
+                node.left = nodes[leftV];
+            }
 
-                result = sum;
+            if (rightV == -1) {
+                node.right = null;
+            } else {
+                node.right = nodes[rightV];
             }
         }
 
-        System.out.println(result);
-        //Привет
-        //Как дела
+        int[] h = new int[n];
 
+        dfs(nodes[root], h);
+
+        boolean result = isAvl(nodes[root], -1, -1, h);
+
+        System.out.println(result ? 1 : 0);
+    }
+
+    public static boolean isAvl(Node curNode, int lowerRange, int upperRange, int[] h) {
+        if (curNode == null) {return true;}
+
+        boolean depth = true;
+
+        if (curNode.left != null && curNode.right != null) {
+            depth = (h[curNode.left.val] -  h[curNode.right.val]) <= 1;
+        } else if (curNode.left != null) {
+            depth = h[curNode.val] <= 1;
+        }  else if (curNode.right != null) {
+            depth = h[curNode.val] <= 1;
+        }
+
+        boolean condition = true;
+
+        if (lowerRange != -1 && upperRange != -1) {
+            condition = curNode.val > lowerRange && curNode.val < upperRange;
+        } else if (lowerRange != -1) {
+            condition = curNode.val > lowerRange;
+        } else if (upperRange != -1) {
+            condition = curNode.val < upperRange;
+        }
+
+        int newUpperRange = Math.min(upperRange == -1 ? Integer.MAX_VALUE : upperRange, curNode.val);
+        int newLowerRange = Math.max(lowerRange == -1 ? Integer.MIN_VALUE : lowerRange, curNode.val);
+
+        return depth && condition && isAvl(curNode.left, lowerRange, newUpperRange, h) && isAvl(curNode.right, newLowerRange, upperRange, h);
+    }
+
+    public static int dfs(Node curNode, int[] h) {
+        if (curNode == null) {return -1;}
+
+        h[curNode.val] = Math.max(dfs(curNode.left, h), dfs(curNode.right, h)) + 1;
+
+        return h[curNode.val];
+    }
+}
+
+class Node {
+    int val;
+    Node left;
+    Node right;
+
+    public Node(int val) {
+        this.val = val;
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "val=" + val +
+                ", left=" + left +
+                ", right=" + right +
+                '}';
     }
 }

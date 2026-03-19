@@ -1,109 +1,75 @@
-import org.w3c.dom.ls.LSOutput;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 public class Solution {
     public static void main(String[] args) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         String line = bufferedReader.readLine();
-        StringTokenizer stringTokenizer = new StringTokenizer(line);
 
-        int n = Integer.parseInt(stringTokenizer.nextToken());
-        int root = Integer.parseInt(stringTokenizer.nextToken());
+        int n = Integer.parseInt(line);
 
-        Node[] nodes = new  Node[n];
+        int[] array = new int[n];
+        int size = 0;
 
-        for (int i = 0; i < n; i++) {
-            nodes[i] = new Node(i);
+        line = bufferedReader.readLine();
+        StringTokenizer stringTokenizer = new StringTokenizer(line);;
+
+        for (int j = 0; j < n; j++) {
+            int num = Integer.parseInt(stringTokenizer.nextToken());
+
+            array[size] = num;
+            ascent(size, array);
+            size++;
         }
 
         for (int i = 0; i < n; i++) {
-            line = bufferedReader.readLine();
-            stringTokenizer = new StringTokenizer(line);
+            swap(0, size - 1, array);
+            size--;
+            sift(0, array, size);
+        }
 
-            int leftV = Integer.parseInt(stringTokenizer.nextToken());
-            int rightV = Integer.parseInt(stringTokenizer.nextToken());
+        System.out.println(Arrays.stream(array).mapToObj(String::valueOf).collect(Collectors.joining(" ")));
+    }
 
-            Node node = nodes[i];
+    public static void sift(int index, int[] array, int size) {
+        int indexToSwap;
 
-            if (leftV == -1) {
-                node.left = null;
+        while (true) {
+            if (index * 2 + 1 >= size) {return;}
+            else if (index * 2 + 2 >= size) {indexToSwap = index * 2 + 1;}
+            else {indexToSwap = array[index * 2 + 1] > array[index * 2 + 2] ? index * 2 + 1 : index * 2 + 2;}
+
+            if (array[indexToSwap] > array[index]) {
+                swap(index, indexToSwap, array);
+                index = indexToSwap;
             } else {
-                node.left = nodes[leftV];
-            }
-
-            if (rightV == -1) {
-                node.right = null;
-            } else {
-                node.right = nodes[rightV];
+                return;
             }
         }
-
-        int[] h = new int[n];
-
-        dfs(nodes[root], h);
-
-        boolean result = isAvl(nodes[root], -1, -1, h);
-
-        System.out.println(result ? 1 : 0);
     }
 
-    public static boolean isAvl(Node curNode, int lowerRange, int upperRange, int[] h) {
-        if (curNode == null) {return true;}
+    public static void ascent(int index, int[] array) {
+        int indexToSwap;
 
-        boolean depth = true;
+        while (true) {
+            indexToSwap = (index - 1) / 2;
 
-        if (curNode.left != null && curNode.right != null) {
-            depth = (h[curNode.left.val] -  h[curNode.right.val]) <= 1;
-        } else if (curNode.left != null) {
-            depth = h[curNode.val] <= 1;
-        }  else if (curNode.right != null) {
-            depth = h[curNode.val] <= 1;
+            if (index == 0) {return;}
+
+            if (array[indexToSwap] < array[index]) {
+                swap(index, indexToSwap, array);
+                index = indexToSwap;
+            } else {return;}
         }
-
-        boolean condition = true;
-
-        if (lowerRange != -1 && upperRange != -1) {
-            condition = curNode.val > lowerRange && curNode.val < upperRange;
-        } else if (lowerRange != -1) {
-            condition = curNode.val > lowerRange;
-        } else if (upperRange != -1) {
-            condition = curNode.val < upperRange;
-        }
-
-        int newUpperRange = Math.min(upperRange == -1 ? Integer.MAX_VALUE : upperRange, curNode.val);
-        int newLowerRange = Math.max(lowerRange == -1 ? Integer.MIN_VALUE : lowerRange, curNode.val);
-
-        return depth && condition && isAvl(curNode.left, lowerRange, newUpperRange, h) && isAvl(curNode.right, newLowerRange, upperRange, h);
     }
 
-    public static int dfs(Node curNode, int[] h) {
-        if (curNode == null) {return -1;}
-
-        h[curNode.val] = Math.max(dfs(curNode.left, h), dfs(curNode.right, h)) + 1;
-
-        return h[curNode.val];
-    }
-}
-
-class Node {
-    int val;
-    Node left;
-    Node right;
-
-    public Node(int val) {
-        this.val = val;
-    }
-
-    @Override
-    public String toString() {
-        return "Node{" +
-                "val=" + val +
-                ", left=" + left +
-                ", right=" + right +
-                '}';
+    public static void swap(int index1, int index2, int[] array) {
+        int temp = array[index1];
+        array[index1] = array[index2];
+        array[index2] = temp;
     }
 }

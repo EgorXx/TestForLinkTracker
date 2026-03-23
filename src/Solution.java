@@ -26,6 +26,7 @@ public class Solution {
             size++;
         }
 
+
         for (int i = 0; i < n; i++) {
             swap(0, size - 1, array);
             size--;

@@ -1,76 +1,52 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class Solution {
     public static void main(String[] args) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        String line = bufferedReader.readLine();
-
-        int n = Integer.parseInt(line);
-
-        int[] array = new int[n];
-        int size = 0;
-
-        line = bufferedReader.readLine();
-        StringTokenizer stringTokenizer = new StringTokenizer(line);;
-
-        for (int j = 0; j < n; j++) {
-            int num = Integer.parseInt(stringTokenizer.nextToken());
-
-            array[size] = num;
-            ascent(size, array);
-            size++;
-        }
-
-
-        for (int i = 0; i < n; i++) {
-            swap(0, size - 1, array);
-            size--;
-            sift(0, array, size);
-        }
-
-        System.out.println(Arrays.stream(array).mapToObj(String::valueOf).collect(Collectors.joining(" ")));
-    }
-
-    public static void sift(int index, int[] array, int size) {
-        int indexToSwap;
-
-        while (true) {
-            if (index * 2 + 1 >= size) {return;}
-            else if (index * 2 + 2 >= size) {indexToSwap = index * 2 + 1;}
-            else {indexToSwap = array[index * 2 + 1] > array[index * 2 + 2] ? index * 2 + 1 : index * 2 + 2;}
-
-            if (array[indexToSwap] > array[index]) {
-                swap(index, indexToSwap, array);
-                index = indexToSwap;
-            } else {
-                return;
+//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+//        String line = bufferedReader.readLine();
+//        StringTokenizer stringTokenizer = new StringTokenizer(line);
+//
+//        int N = Integer.parseInt(stringTokenizer.nextToken());
+//        int K = Integer.parseInt(stringTokenizer.nextToken());
+//
+//        Map<Integer, Integer> map = new TreeMap<>();
+//
+//        for (int i = 1; i <= N; i++) {
+//            map.merge(i * i, 1, Integer::sum);
+//
+//            for (int j = i * (i + 1); j <= N * i; j = j + i) {
+//                map.merge(j, 2, Integer::sum);
+//            }
+//        }
+////        System.out.println(map);
+//
+//        for (var entry : map.entrySet()) {
+////            System.out.println(entry.getKey() + " " + entry.getValue());
+//            K -= entry.getValue();
+//
+//            if (K <= 0) {
+//                System.out.println(entry.getKey());
+//                break;
+//            }
+//
+////            System.out.println(K + "\n\n");
+//        }
+        class Point {
+            int x, y;
+            Point(int x, int y) { this.x = x; this.y = y; }
+            @Override public boolean equals(Object o) {
+                Point p = (Point) o;
+                return x == p.x && y == p.y;
             }
         }
+        Set<Point> set = new HashSet<>();
+        set.add(new Point(1, 2));
+        set.add(new Point(1, 2));
+        System.out.println(set.size());
     }
 
-    public static void ascent(int index, int[] array) {
-        int indexToSwap;
 
-        while (true) {
-            indexToSwap = (index - 1) / 2;
-
-            if (index == 0) {return;}
-
-            if (array[indexToSwap] < array[index]) {
-                swap(index, indexToSwap, array);
-                index = indexToSwap;
-            } else {return;}
-        }
-    }
-
-    public static void swap(int index1, int index2, int[] array) {
-        int temp = array[index1];
-        array[index1] = array[index2];
-        array[index2] = temp;
-    }
 }
